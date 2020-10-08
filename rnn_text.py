@@ -21,6 +21,8 @@ df = df.drop(["Unnamed: 2", "Unnamed: 3", "Unnamed: 4"], axis=1)
 df.columns = ['labels', 'data']
 
 
+df['b_labels'] = df['labels'].map({'ham': 0, 'spam': 1})
+Y = df['b_labels'].values
 df_train, df_test, Ytrain, Ytest = train_test_split(df['data'], Y, test_size=0.33)
 
 # Convert sentences to sequences
@@ -78,7 +80,7 @@ r = model.fit(
   data_train,
   Ytrain,
   epochs=10,
-  validation_data=(data_test, Ytest)
+  validation_data=(df_test, Ytest)
 )
 
 # Plot loss per iteration
