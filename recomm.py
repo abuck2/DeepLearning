@@ -30,13 +30,14 @@ class RecomSystem:
         ratings = df['rating'].values
 
         # Get number of users and number of movies
-        N = len(set(user_ids))
-        M = len(set(movie_ids))
+        self.N = len(set(user_ids))
+        self.M = len(set(movie_ids))
 
         # Set embedding dimension
-        K = 50
+        self.K = 50
+        return user_ids, movie_ids, ratings
 
-    def nn_build(self):
+    def nn_build(self, user_ids, movie_ids, ratings):
         # User input
         u = Input(shape=(1,))
 
@@ -44,17 +45,17 @@ class RecomSystem:
         m = Input(shape=(1,))
 
         # User embedding
-        u_emb = Embedding(N, K)(u) # output is (num_samples, 1, K)
+        u_emb = Embedding(self.N, self.K)(u) # output is (num_samples, 1, self.K)
 
         # Movie embedding
-        m_emb = Embedding(M, K)(m) # output is (num_samples, 1, K)
+        m_emb = Embedding(self.M, self.K)(m) # output is (num_samples, 1, self.K)
 
         # Flatten both embeddings
-        u_emb = Flatten()(u_emb) # now it's (num_samples, K)
-        m_emb = Flatten()(m_emb) # now it's (num_samples, K)
+        u_emb = Flatten()(u_emb) # now it's (num_samples, self.K)
+        m_emb = Flatten()(m_emb) # now it's (num_samples, self.K)
 
         # Concatenate user-movie embeddings into a feature vector
-        x = Concatenate()([u_emb, m_emb]) # now it's (num_samples, 2K)
+        x = Concatenate()([u_emb, m_emb]) # now it's (num_samples, 2self.K)
 
         # Now that we have a feature vector, it's just a regular ANN
         x = Dense(1024, activation='relu')(x)
@@ -88,7 +89,7 @@ class RecomSystem:
         r = model.fit(
             x=[train_user, train_movie],
             y=train_ratings,
-            epochs=25,
+            epochs=10,
             batch_size=1024,
             verbose=2, # goes a little faster when you don't print the progress bar
             validation_data=([test_user, test_movie], test_ratings),
@@ -103,7 +104,8 @@ class RecomSystem:
 
 
     def train(self):
-        self.dataprep()
+        user_ids, movie_ids, ratings = self.dataprep()
+        self.nn_build(user_ids, movie_ids, ratings)
 
 if __name__=="__main__":
     rc = RecomSystem()
