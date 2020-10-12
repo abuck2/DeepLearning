@@ -174,9 +174,8 @@ class GanNetwork:
         a = imread('gan_images/0.png')
         plt.imshow(a)
         
-        a = imread('gan_images/{}.png'.format(self.epochs))
-        plt.imshow(a)
-
+        #a = imread('gan_images/{}.png'.format(self.epochs//sample_period))
+        #plt.imshow(a)
 
 
     def sample_images(self, epoch):
